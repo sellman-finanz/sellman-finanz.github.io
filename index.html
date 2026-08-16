@@ -91,6 +91,9 @@
 </head>
 <body>
 
+<div style="background:var(--amber);color:#0A1628;text-align:center;padding:10px 24px;font-size:13px;font-weight:700;letter-spacing:0.2px">
+  🎁 Willkommensbonus: <span style="text-decoration:underline">50 € Gutschein</span> für jeden Neukunden – Jetzt sichern!
+</div>
 <nav>
   <div class="logo">Strom<span>&</span>Gas<span style="font-weight:400;color:#94B4D4">Vergleich</span></div>
   <div class="trust-line">✓ Kostenlos &nbsp;·&nbsp; ✓ Unabhängig &nbsp;·&nbsp; ✓ DSGVO-konform</div>
@@ -208,7 +211,7 @@
       <div class="proof-lbl">zufriedene Kunden</div>
     </div>
     <div>
-      <div class="proof-num">Ø 234 €</div>
+      <div class="proof-num">Ø 547 €</div>
       <div class="proof-lbl">Ersparnis pro Jahr</div>
     </div>
     <div>
@@ -244,16 +247,10 @@
   </div>
 </section>
 
-<footer>
-  <a href="#" onclick="return false">Impressum</a>
-  <a href="#" onclick="return false">Datenschutz</a>
-  <a href="#" onclick="return false">Kontakt</a>
-  <br><br>
-  © 2026 StromGasVergleich · Alle Preisangaben sind Durchschnittswerte und können variieren.
-</footer>
+
 
 <script>
-const target = 234;
+const target = 547;
 let current = 0;
 const duration = 1800;
 const steps = 60;
@@ -307,11 +304,16 @@ function updateZaehler() {
   }
 }
 
-function submitForm() {
+async function submitForm() {
   const fname = document.getElementById('fname').value.trim();
+  const lname = document.getElementById('lname').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const plz = document.getElementById('plz').value.trim();
   const typ = document.getElementById('typ').value;
+  const verbrauch = document.getElementById('verbrauch').value;
+  const anbieter = document.getElementById('anbieter').value.trim();
+  const zaehlerStrom = document.getElementById('zaehler-strom')?.value.trim() || '';
+  const zaehlerGas = document.getElementById('zaehler-gas')?.value.trim() || '';
   const dsgvo = document.getElementById('dsgvo').checked;
 
   if (!fname || !phone || !plz || !typ) {
@@ -323,8 +325,40 @@ function submitForm() {
     return;
   }
 
-  document.getElementById('form-card').style.display = 'none';
-  document.getElementById('success-card').style.display = 'block';
+  const btn = document.querySelector('.cta-btn');
+  btn.textContent = 'Wird gesendet …';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('https://formspree.io/f/xkjwvrgr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        Vorname: fname,
+        Nachname: lname,
+        Telefon: phone,
+        PLZ: plz,
+        Vergleich: typ,
+        Jahresverbrauch: verbrauch,
+        AktuellerAnbieter: anbieter,
+        Stromzählernummer: zaehlerStrom,
+        Gaszählernummer: zaehlerGas
+      })
+    });
+
+    if (res.ok) {
+      document.getElementById('form-card').style.display = 'none';
+      document.getElementById('success-card').style.display = 'block';
+    } else {
+      alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
+      btn.textContent = 'Kostenlos Angebote vergleichen →';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    alert('Netzwerkfehler. Bitte versuchen Sie es erneut.');
+    btn.textContent = 'Kostenlos Angebote vergleichen →';
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
